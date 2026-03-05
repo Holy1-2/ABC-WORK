@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABC Dashboard — Documentation</title>
+
+  <!-- Modern docs font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0B0C0F;
+      --panel:#0F1117;
+      --panel2:#0D0F14;
+      --text:#F3F4F6;
+      --muted:#A1A1AA;
+      --muted2:#71717A;
+      --border:rgba(255,255,255,.10);
+      --border2:rgba(255,255,255,.08);
+      --shadow: 0 14px 40px rgba(0,0,0,.55);
+      --radius:16px;
+      --radius2:20px;
+      --max: 1220px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x:hidden;
+    }
+    a{color:inherit}
+
+    /* top progress line */
+    .progress-wrap{
+      position: fixed;
+      top:0; left:0; right:0;
+      height: 2px;
+      z-index: 80;
+      background: transparent;
+    }
+    .progress{
+      height:2px; width:0%;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.12);
+    }
+
+    /* subtle background grid */
+    .bg-grid{
+      pointer-events:none;
+      position: fixed;
+      inset:0;
+      z-index:0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255,255,255,.06), transparent 40%),
+        radial-gradient(circle at 90% 10%, rgba(255,255,255,.05), transparent 42%),
+        linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: auto, auto, 56px 56px, 56px 56px;
+      opacity:.35;
+    }
+
+    /* topbar */
+    .topbar{
+      position: sticky;
+      top:0;
+      z-index: 70;
+      border-bottom: 1px solid var(--border2);
+      background: rgba(11,12,15,.78);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .leftbrand{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width:0;
+    }
+    .logo{
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      display:grid;
+      place-items:center;
+      box-shadow: 0 8px 20px rgba(0,0,0,.35);
+    }
+    .titleblock{min-width:0}
+    .titleblock h1{
+      margin:0;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .titleblock p{
+      margin:2px 0 0;
+      font-size: 11px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      text-decoration:none;
+      font-size: 13px;
+      font-weight: 700;
+      transition:.18s ease;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.16);
+      transform: translateY(-1px);
+    }
+    .btn:active{transform: translateY(0px)}
+    .icon{width:18px;height:18px;opacity:.9}
+
+    .hambtn{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,.04);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .hambtn:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); transform: translateY(-1px);}
+    .hambtn:active{transform: translateY(0px);}
+
+    /* layout shell */
+    .shell{
+      position: relative;
+      z-index: 1;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 18px 16px 44px;
+    }
+
+    /* 3-column layout: left nav | main | right toc */
+    .layout{
+      display:grid;
+      grid-template-columns: 280px 1fr 260px;
+      gap: 18px;
+      align-items:start;
+    }
+
+    /* left sidebar (desktop) */
+    .sidebar{
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 92px);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+    }
+    .side-inner{
+      padding: 14px;
+      height:100%;
+      overflow:auto;
+    }
+    .side-label{
+      margin: 8px 10px 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      color: rgba(255,255,255,.55);
+    }
+    .nav{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
+    .nav a{
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: rgba(255,255,255,.78);
+      transition:.16s ease;
+    }
+    .nav a:hover{
+      background: rgba(255,255,255,.05);
+      border-color: rgba(255,255,255,.10);
+      color: white;
+    }
+    .nav a.active{
+      background: rgba(255,255,255,.07);
+      border-color: rgba(255,255,255,.16);
+      color: white;
+    }
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width:0;
+    }
+    .nav .mini{
+      font-size: 11px;
+      color: rgba(255,255,255,.50);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .quick{
+      margin-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 12px;
+    }
+    .quick a{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.22);
+      text-decoration:none;
+      transition:.16s ease;
+      font-weight: 700;
+      font-size: 13px;
+      color: rgba(255,255,255,.86);
+      margin-top: 8px;
+    }
+    .quick a:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); transform: translateY(-1px);}
+
+    /* right TOC (desktop only) */
+    .toc{
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 92px);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .toc-inner{
+      padding: 14px;
+      height:100%;
+      overflow:auto;
+    }
+    .toc h4{
+      margin: 6px 10px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing:.08em;
+      color: rgba(255,255,255,.75);
+      text-transform: uppercase;
+    }
+    .toc a{
+      display:block;
+      text-decoration:none;
+      color: rgba(255,255,255,.70);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition:.16s ease;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+    .toc a:hover{
+      background: rgba(255,255,255,.05);
+      border-color: rgba(255,255,255,.10);
+      color: white;
+    }
+    .toc a.active{
+      background: rgba(255,255,255,.07);
+      border-color: rgba(255,255,255,.16);
+      color: white;
+    }
+    .toc a.depth-3{ padding-left: 22px; font-size: 12.5px; color: rgba(255,255,255,.62); }
+    .toc a.depth-4{ padding-left: 34px; font-size: 12px; color: rgba(255,255,255,.56); }
+
+    /* main doc */
+    .doc{
+      border: 1px solid var(--border2);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.02);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .doc-inner{ padding: 18px; }
+
+    .hero{
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius2);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255,255,255,.86);
+    }
+    .hero h2{
+      margin: 12px 0 6px;
+      font-size: 28px;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+    }
+    .hero p{
+      margin: 0;
+      color: var(--muted);
+      max-width: 75ch;
+      font-size: 14px;
+    }
+    .hero-actions{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    .section{
+      margin-top: 18px;
+      padding-top: 2px;
+    }
+    .section h3{
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    .sub{
+      margin: 6px 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .divider{
+      margin: 18px 0;
+      height: 1px;
+      background: rgba(255,255,255,.08);
+    }
+
+    .grid{
+      display:grid;
+      gap: 12px;
+    }
+    .grid.two{grid-template-columns: repeat(2, minmax(0,1fr));}
+    .grid.three{grid-template-columns: repeat(3, minmax(0,1fr));}
+
+    .card{
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.20);
+      border-radius: var(--radius);
+      padding: 14px;
+      transition:.16s ease;
+    }
+    .card:hover{background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.14); transform: translateY(-1px);}
+    .card h4{margin:0; font-size: 13px;}
+    .card p{margin: 6px 0 0; color: var(--muted); font-size: 12px;}
+
+    .kv{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      margin-top: 8px;
+      color: rgba(255,255,255,.84);
+      font-size: 13px;
+    }
+    .kv b{color: rgba(255,255,255,.92)}
+    .kv .k{color: var(--muted); min-width: 130px;}
+
+    /* Callouts */
+    .callout{
+      border-radius: var(--radius);
+      padding: 12px 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+    }
+    .callout strong{display:block; font-size: 13px; margin-bottom: 2px;}
+    .callout p{margin:0; color: var(--muted); font-size: 12.8px;}
+    .callout .badge{
+      flex: 0 0 auto;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.08em;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.86);
+      text-transform: uppercase;
+    }
+    .callout.tip{ border-color: rgba(255,255,255,.12); }
+    .callout.note{ border-color: rgba(255,255,255,.12); }
+    .callout.warn{ border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.04); }
+
+    /* Screenshot accordion */
+    details.shot{
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    details.shot[open]{ background: rgba(255,255,255,.03); }
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding: 12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{display:none;}
+    .sum-left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width:0;
+    }
+    .sum-title{
+      min-width:0;
+    }
+    .sum-title b{
+      display:block;
+      font-size: 13px;
+      color: rgba(255,255,255,.92);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .sum-title span{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .pill{
+      font-size: 11px;
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.26);
+      color: rgba(255,255,255,.85);
+      white-space:nowrap;
+    }
+    .chev{
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      display:grid;
+      place-items:center;
+      transition:.16s ease;
+      flex: 0 0 auto;
+    }
+    details[open] .chev{ transform: rotate(180deg); }
+
+    .shot-body{
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 12px;
+    }
+
+    /* "Code block with line numbers" (screenshot viewer with numbered gutter) */
+    .code-shot{
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      overflow:hidden;
+      background: rgba(0,0,0,.30);
+    }
+    .code-shot-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      gap: 10px;
+    }
+    .code-shot-top span{
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(255,255,255,.86);
+      letter-spacing:.02em;
+    }
+    .code-shot-top small{
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .code-shot-view{
+      display:grid;
+      grid-template-columns: 52px 1fr;
+      max-height: 460px;
+      overflow:auto;
+    }
+    .gutter{
+      background: rgba(255,255,255,.03);
+      border-right: 1px solid rgba(255,255,255,.08);
+      padding: 10px 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.42);
+      text-align:right;
+      line-height: 1.65;
+      user-select:none;
+    }
+    .gutter div{ padding: 0 10px 0 0; }
+    .shot-img{
+      padding: 10px;
+      background: rgba(0,0,0,.22);
+    }
+    .shot-img img{
+      width: 100%;
+      display:block;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .shot-caption{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12.6px;
+    }
+
+    /* drawer */
+    .overlay{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.60);
+      z-index: 90;
+      display:none;
+    }
+    .drawer{
+      position: fixed;
+      top:0; left:0;
+      height: 100vh;
+      width: min(88vw, 360px);
+      background: rgba(11,12,15,.92);
+      backdrop-filter: blur(14px);
+      border-right: 1px solid rgba(255,255,255,.10);
+      z-index: 100;
+      transform: translateX(-110%);
+      transition: transform .22s ease;
+      padding: 14px;
+      overflow:auto;
+    }
+    .drawer.open{transform: translateX(0);}
+    .overlay.open{display:block;}
+    .drawer-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .closebtn{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      display:grid; place-items:center;
+      cursor:pointer;
+      transition:.16s ease;
+    }
+    .closebtn:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16);}
+
+    .footer{
+      margin-top: 18px;
+      padding: 14px 4px 2px;
+      color: rgba(255,255,255,.45);
+      font-size: 12px;
+      text-align:center;
+    }
+
+    /* responsive rules */
+    @media (min-width: 980px){
+      .hambtn{display:none;}
+      .drawer, .overlay{display:none !important;}
+    }
+    @media (max-width: 980px){
+      .layout{grid-template-columns: 1fr;}
+      .sidebar{display:none;}
+      .toc{display:none;} /* desktop-only toc */
+      .hero h2{font-size: 24px;}
+      .grid.two, .grid.three{grid-template-columns: 1fr;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+  <div class="bg-grid"></div>
+
+  <!-- Mobile drawer -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer" aria-label="Mobile navigation">
+    <div class="drawer-top">
+      <div class="leftbrand">
+        <div class="logo" aria-hidden="true">
+          <!-- Heroicon: Cube -->
+          <svg class="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l8.5 4.9v10.2L12 22 3.5 17.1V6.9L12 2z" stroke="white" stroke-width="1.8"/>
+            <path d="M12 22V12" stroke="white" stroke-width="1.8"/>
+            <path d="M20.5 6.9L12 12 3.5 6.9" stroke="white" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div class="titleblock">
+          <h1>ABC Dashboard Docs</h1>
+          <p>Navigation</p>
+        </div>
+      </div>
+
+      <button class="closebtn" id="closeDrawer" aria-label="Close menu">
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="side-label">NAVIGATION</div>
+    <nav class="nav" id="drawerNav">
+      <a href="#overview"><span class="nav-left">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M3 10.5l9-7 9 7V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5z" stroke="white" stroke-width="1.8"/></svg>
+        Overview</span><span class="mini">01</span></a>
+
+      <a href="#how-we-built"><span class="nav-left">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="white" stroke-width="1.8"/></svg>
+        How we worked</span><span class="mini">02</span></a>
+
+      <a href="#team"><span class="nav-left">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="white" stroke-width="1.8"/><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="white" stroke-width="1.8"/></svg>
+        Team</span><span class="mini">03</span></a>
+
+      <a href="#screenshots"><span class="nav-left">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16v12H4z" stroke="white" stroke-width="1.8"/></svg>
+        UI screenshots</span><span class="mini">04</span></a>
+
+      <a href="#proof"><span class="nav-left">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 2h9l3 3v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="white" stroke-width="1.8"/><path d="M15 2v4h4" stroke="white" stroke-width="1.8"/></svg>
+        Proof screenshots</span><span class="mini">05</span></a>
+
+      <a href="#links"><span class="nav-left">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+        Links</span><span class="mini">06</span></a>
+    </nav>
+
+    <div class="quick">
+      <div class="side-label">QUICK LINKS</div>
+      <a href="YOUR_LIVE_PROJECT_URL_HERE" target="_blank" rel="noreferrer">Live Project <span style="opacity:.8">↗</span></a>
+      <a href="https://1drv.ms/p/c/db1c7004f9fd1c9f/IQCIdWjJo8O_QYvnIS_L3pYXASLnnNyuKkR9wn1X6O6go0g?e=9gYybe" target="_blank" rel="noreferrer">PPT Presentation <span style="opacity:.8">↗</span></a>
+    </div>
+  </aside>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="leftbrand">
+        <button class="hambtn" id="openDrawer" aria-label="Open menu">
+          <svg class="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <div class="logo" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l8.5 4.9v10.2L12 22 3.5 17.1V6.9L12 2z" stroke="white" stroke-width="1.8"/>
+            <path d="M12 22V12" stroke="white" stroke-width="1.8"/>
+            <path d="M20.5 6.9L12 12 3.5 6.9" stroke="white" stroke-width="1.8"/>
+          </svg>
+        </div>
+
+        <div class="titleblock">
+          <h1>ABC Dashboard Documentation</h1>
+          <p>Professional docs • black/white • presenter style</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn" href="#links">
+          <svg class="icon" viewBox="0 0 24 24" fill="none">
+            <path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Links
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="layout">
+      <!-- Left sidebar (desktop) -->
+      <aside class="sidebar" aria-label="Desktop navigation">
+        <div class="side-inner">
+          <div class="side-label">NAVIGATION</div>
+          <nav class="nav" id="desktopNav">
+            <a href="#overview"><span class="nav-left">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M3 10.5l9-7 9 7V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5z" stroke="white" stroke-width="1.8"/></svg>
+              Overview</span><span class="mini">01</span></a>
+
+            <a href="#how-we-built"><span class="nav-left">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="white" stroke-width="1.8"/></svg>
+              How we worked</span><span class="mini">02</span></a>
+
+            <a href="#team"><span class="nav-left">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="white" stroke-width="1.8"/><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="white" stroke-width="1.8"/></svg>
+              Team</span><span class="mini">03</span></a>
+
+            <a href="#screenshots"><span class="nav-left">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16v12H4z" stroke="white" stroke-width="1.8"/></svg>
+              UI screenshots</span><span class="mini">04</span></a>
+
+            <a href="#proof"><span class="nav-left">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 2h9l3 3v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="white" stroke-width="1.8"/><path d="M15 2v4h4" stroke="white" stroke-width="1.8"/></svg>
+              Proof screenshots</span><span class="mini">05</span></a>
+
+            <a href="#links"><span class="nav-left">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+              Links</span><span class="mini">06</span></a>
+          </nav>
+
+          <div class="quick">
+            <div class="side-label">QUICK LINKS</div>
+            <a href="YOUR_LIVE_PROJECT_URL_HERE" target="_blank" rel="noreferrer">Live Project <span style="opacity:.8">↗</span></a>
+            <a href="https://1drv.ms/p/c/db1c7004f9fd1c9f/IQCIdWjJo8O_QYvnIS_L3pYXASLnnNyuKkR9wn1X6O6go0g?e=9gYybe" target="_blank" rel="noreferrer">PPT Presentation <span style="opacity:.8">↗</span></a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main doc -->
+      <article class="doc">
+        <div class="doc-inner">
+          <!-- HERO -->
+          <section class="hero" id="overview">
+            <span class="tag">
+              <svg class="icon" viewBox="0 0 24 24" fill="none">
+                <path d="M6 2h9l3 3v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="white" stroke-width="1.8"/>
+                <path d="M15 2v4h4" stroke="white" stroke-width="1.8"/>
+              </svg>
+              Project Documentation
+            </span>
+
+            <h2>ABC Company Dashboard (React + Tailwind)</h2>
+            <p>
+              In this documentation, I’m presenting how we designed and built a responsive dashboard application for
+              ABC Company (Nyanza District, Southern Province, Rwanda). You will see the UI screenshots, the workflow
+              we followed as a team, and the proof screenshots of our stack setup.
+            </p>
+
+            <div class="hero-actions">
+              <a class="btn" href="#how-we-built">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 6v6l4 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="white" stroke-width="1.8"/>
+                </svg>
+                How we worked
+              </a>
+              <a class="btn" href="#screenshots">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 7h16v12H4z" stroke="white" stroke-width="1.8"/>
+                </svg>
+                UI screenshots
+              </a>
+              <a class="btn" href="#proof">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 2h9l3 3v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="white" stroke-width="1.8"/>
+                  <path d="M15 2v4h4" stroke="white" stroke-width="1.8"/>
+                </svg>
+                Proof screenshots
+              </a>
+            </div>
+          </section>
+
+          <div class="divider"></div>
+
+          <!-- HOW WE BUILT -->
+          <section class="section" id="how-we-built">
+            <h3>How we worked (presentation style)</h3>
+            <p class="sub">
+              Here is the exact approach we followed from planning to delivery — this section is written like I’m explaining it live.
+            </p>
+
+            <div class="callout note">
+              <div class="badge">Note</div>
+              <div>
+                <strong>Goal</strong>
+                <p>Deliver a fast, responsive dashboard UI with a clear layout: Header + Sidebar + Main area, and support both Grid and List views.</p>
+              </div>
+            </div>
+
+            <div style="height:10px;"></div>
+
+            <div class="grid two">
+              <div class="card">
+                <h4>1) Planning & UI structure</h4>
+                <p>We first agreed on the layout and interaction rules: mobile drawer sidebar, sticky header, and a clear information hierarchy.</p>
+              </div>
+              <div class="card">
+                <h4>2) Building components</h4>
+                <p>We implemented the header, sidebar navigation, and the main view with grid/list toggle, filters, and selection panel.</p>
+              </div>
+              <div class="card">
+                <h4>3) Responsiveness & usability</h4>
+                <p>We tested on mobile sizes: sidebar becomes drawer, spacing increases for touch, and buttons stay reachable.</p>
+              </div>
+              <div class="card">
+                <h4>4) Finishing & proof</h4>
+                <p>We prepared screenshots for the UI and for the stack setup (package.json, Tailwind, PostCSS) as formal evidence.</p>
+              </div>
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div class="">
+             
+            </div>
+          </section>
+
+          <div class="divider"></div>
+
+          <!-- TEAM -->
+          <section class="section" id="team">
+            <h3>Team & project identity</h3>
+            <p class="sub">Replace placeholders with your real team name and full names.</p>
+
+            <div class="grid two">
+              <div class="card">
+                <h4>Group / Team Name</h4>
+                <div class="kv"><div class="k">Team:</div><div><b>Agappe</b></div></div>
+                <div class="kv"><div class="k">Class / Group:</div><div>l5 SODA</div></div>
+              </div>
+
+              <div class="card">
+                <h4>Client / Company</h4>
+                <div class="kv"><div class="k">Company:</div><div><b>ABC Company</b></div></div>
+                <div class="kv"><div class="k">Location:</div><div>Nyanza District, Southern Province, Rwanda</div></div>
+              </div>
+            </div>
+
+            <div class="grid three" style="margin-top:12px;">
+              <div class="card">
+                <h4>Member 1</h4>
+                <p><b>Full Name:</b> Hirwa Amani Topray</p>
+                <p><b>Contribution:</b> Coding</p>
+              </div>
+              <div class="card">
+                <h4>Member 2</h4>
+                <p><b>Full Name:</b>Mashakarugo fillet</p>
+                <p><b>Contribution:</b> Design Advicing </p>
+              </div>
+              <div class="card">
+                <h4>Member 3</h4>
+                <p><b>Full Name:</b>Umwali henrette</p>
+                <p><b>Contribution:</b> Design Advicing</p>
+              </div>
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div class="">
+             
+            </div>
+          </section>
+
+          <div class="divider"></div>
+
+          <!-- UI SCREENSHOTS -->
+          <section class="section" id="screenshots">
+            <h3>Dashboard UI screenshots</h3>
+            <p class="sub">Each item has a “Show screenshot” button. Replace image paths with your real screenshots.</p>
+
+            <div class="grid two">
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16v12H4z" stroke="white" stroke-width="1.8"/></svg>
+                    <div class="sum-title">
+                      <b>Full dashboard (Desktop)</b>
+                      <span>This shows the complete layout: header, sidebar, and main area.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+                <div class="shot-body">
+                  <div class="code-shot">
+                    <div class="code-shot-top">
+                     
+                    </div>
+                    <div class="code-shot-view" style="grid-template-columns: 1fr;">
+                      <div class="shot-img">
+                        <img src="agappe.PNG" alt="Dashboard desktop screenshot" />
+                        <div class="shot-caption">This screenshot proves the dashboard structure and professional layout on desktop.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                    <div class="sum-title">
+                      <b>Mobile drawer sidebar</b>
+                      <span>Shows the sidebar opened on a phone screen.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+                <div class="shot-body">
+                  <div class="code-shot">
+                    <div class="code-shot-top">
+                    
+                    </div>
+                    <div class="code-shot-view" style="grid-template-columns: 1fr;">
+                      <div class="shot-img">
+                        <img src="mobile.PNG" alt="Mobile drawer screenshot" />
+                        <div class="shot-caption">This screenshot proves the app is mobile-first and fully responsive.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16v12H4z" stroke="white" stroke-width="1.8"/><path d="M7 10h4v4H7z" stroke="white" stroke-width="1.8"/></svg>
+                    <div class="sum-title">
+                      <b>Grid view</b>
+                      <span>Cards view for visual scanning and quick selection.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+                <div class="shot-body">
+                  <div class="code-shot">
+                    <div class="code-shot-top">
+             
+                    </div>
+                    <div class="code-shot-view" style="grid-template-columns: 1fr;">
+                      <div class="shot-img">
+                        <img src="gridaggape.PNG" alt="Grid view screenshot" />
+                        <div class="shot-caption">This screenshot proves the grid layout is implemented and styled.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 7h14M7 12h14M7 17h14" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M3 7h.01M3 12h.01M3 17h.01" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+                    <div class="sum-title">
+                      <b>List view</b>
+                      <span>Rows view for quick reading and comparison.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+                <div class="shot-body">
+                  <div class="code-shot">
+                    <div class="code-shot-top">
+                     
+                    </div>
+                    <div class="code-shot-view" style="grid-template-columns: 1fr;">
+                      <div class="shot-img">
+                        <img src="listaggape.PNG" alt="List view screenshot" />
+                        <div class="shot-caption">This screenshot proves the list view toggle and row UI exist.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <div class="divider"></div>
+
+          <!-- PROOF SCREENSHOTS -->
+          <section class="section" id="proof">
+            <h3>Proof screenshots (stack evidence)</h3>
+            <p class="sub">
+              We are not showing raw code text here — only screenshots. Each proof item uses a “code viewer” style with line numbers on the left.
+              Set line count using <b>data-lines</b>.
+            </p>
+
+            <div class="">
+             
+            </div>
+
+            <div style="height:12px;"></div>
+
+            <div class="grid two">
+              <!-- package.json proof -->
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 2h9l3 3v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="white" stroke-width="1.8"/><path d="M15 2v4h4" stroke="white" stroke-width="1.8"/></svg>
+                    <div class="sum-title">
+                      <b>package.json screenshot</b>
+                      <span>Proof of React + Tailwind + PostCSS dependencies.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+
+                <div class="shot-body">
+                  <div class="code-shot" data-lines="1">
+                    <div class="code-shot-top">
+                      <span>package.json</span>
+                      <small>images/proof-package-json.png</small>
+                    </div>
+                    <div class="code-shot-view">
+                      <div class="gutter"></div>
+                      <div class="shot-img">
+                        <img src="pacakage.PNG" alt="package.json screenshot" />
+                        <div class="shot-caption">This proves the required libraries were installed and configured in the project.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <!-- tailwind config proof -->
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M3 6h.01M3 12h.01M3 18h.01" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+                    <div class="sum-title">
+                      <b>tailwind.config.js screenshot</b>
+                      <span>Proof Tailwind is scanning src files and theme settings are applied.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+
+                <div class="shot-body">
+                  <div class="code-shot" data-lines="1">
+                    <div class="code-shot-top">
+                      <span>tailwind.config.js</span>
+                      <small>images/proof-tailwind-config.png</small>
+                    </div>
+                    <div class="code-shot-view">
+                      <div class="gutter"></div>
+                      <div class="shot-img">
+                        <img src="tailwinf.PNG" alt="tailwind config screenshot" />
+                        <div class="shot-caption">This shows Tailwind configuration and content paths for building styles correctly.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <!-- postcss config proof -->
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 2h9l3 3v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="white" stroke-width="1.8"/><path d="M15 2v4h4" stroke="white" stroke-width="1.8"/></svg>
+                    <div class="sum-title">
+                      <b>postcss.config.js screenshot</b>
+                      <span>Proof Tailwind + autoprefixer pipeline is enabled.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+
+                <div class="shot-body">
+                  <div class="code-shot" data-lines="1">
+                    <div class="code-shot-top">
+                      <span>postcss.config.js</span>
+                      <small>images/proof-postcss-config.png</small>
+                    </div>
+                    <div class="code-shot-view">
+                      <div class="gutter"></div>
+                      <div class="shot-img">
+                        <img src="postcss.PNG" alt="postcss config screenshot" />
+                        <div class="shot-caption">This confirms Tailwind CSS is processed correctly during build.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <!-- App.jsx proof -->
+              <details class="shot">
+                <summary>
+                  <div class="sum-left">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                    <div class="sum-title">
+                      <b>App.jsx screenshot</b>
+                      <span>Proof Tailwind utility classes are used in the dashboard UI.</span>
+                    </div>
+                  </div>
+                  <span class="pill">Show screenshot</span>
+                  <div class="chev">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  </div>
+                </summary>
+
+                <div class="shot-body">
+                  <div class="code-shot" data-lines="1">
+                    <div class="code-shot-top">
+                      <span>App.jsx</span>
+                      <small>images/proof-app-jsx.png</small>
+                    </div>
+                    <div class="code-shot-view">
+                      <div class="gutter"></div>
+                      <div class="shot-img">
+                        <img src="appjs.PNG" alt="App.jsx screenshot" />
+                        <div class="shot-caption">This proves the UI is built using Tailwind classes and a structured React component approach.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <div class="divider"></div>
+
+          <!-- LINKS -->
+          <section class="section" id="links">
+            <h3>Links (live project + PPT)</h3>
+            <p class="sub">Replace placeholders with your real URLs.</p>
+
+            <div class="grid two">
+              <a class="btn" href="YOUR_LIVE_PROJECT_URL_HERE" target="_blank" rel="noreferrer">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Live Project
+              </a>
+
+              <a class="btn" href="https://1drv.ms/p/c/db1c7004f9fd1c9f/IQCIdWjJo8O_QYvnIS_L3pYXASLnnNyuKkR9wn1X6O6go0g?e=9gYybe" target="_blank" rel="noreferrer">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 4h16v16H4z" stroke="white" stroke-width="1.8"/>
+                  <path d="M8 16V8h4a3 3 0 0 1 0 6H8" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                PPT Presentation
+              </a>
+            </div>
+          </section>
+
+          <div class="footer">
+            Docs website • On-this-page TOC (desktop) • Screenshot proofs • Mobile-friendly
+          </div>
+        </div>
+      </article>
+
+      <!-- Right TOC (desktop only) -->
+      <aside class="toc" aria-label="On this page">
+        <div class="toc-inner">
+          <h4>On this page</h4>
+          <nav id="tocNav"></nav>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    // Scroll progress line
+    const progress = document.getElementById("progress");
+    function setProgress(){
+      const st = window.scrollY || document.documentElement.scrollTop;
+      const dh = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const pct = dh ? (st / dh) * 100 : 0;
+      progress.style.width = pct.toFixed(2) + "%";
+    }
+    window.addEventListener("scroll", setProgress);
+    setProgress();
+
+    // Drawer
+    const overlay = document.getElementById("overlay");
+    const drawer = document.getElementById("drawer");
+    const openDrawer = document.getElementById("openDrawer");
+    const closeDrawer = document.getElementById("closeDrawer");
+
+    function openMenu(){
+      overlay.classList.add("open");
+      drawer.classList.add("open");
+    }
+    function closeMenu(){
+      overlay.classList.remove("open");
+      drawer.classList.remove("open");
+    }
+    openDrawer && openDrawer.addEventListener("click", openMenu);
+    closeDrawer && closeDrawer.addEventListener("click", closeMenu);
+    overlay && overlay.addEventListener("click", closeMenu);
+
+    // close drawer when clicking a link
+    const drawerNav = document.getElementById("drawerNav");
+    drawerNav && drawerNav.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (a) closeMenu();
+    });
+
+    // Active section highlighting (left nav + drawer nav)
+    const leftLinks = Array.from(document.querySelectorAll("#desktopNav a"));
+    const drawerLinks = Array.from(document.querySelectorAll("#drawerNav a"));
+
+    function setLeftActive(id){
+      [...leftLinks, ...drawerLinks].forEach(a => {
+        const href = a.getAttribute("href") || "";
+        a.classList.toggle("active", href === "#" + id);
+      });
+    }
+
+    // Build Right TOC (desktop)
+    const tocNav = document.getElementById("tocNav");
+    const docRoot = document.querySelector(".doc-inner");
+    const tocHeads = docRoot ? docRoot.querySelectorAll("h2, h3") : [];
+
+    function slugify(text){
+      return text.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-");
+    }
+
+    const tocItems = [];
+    tocHeads.forEach(h => {
+      // only include h2/h3 that are inside a section with an id
+      let section = h.closest("section[id]");
+      if (!section) return;
+      const id = section.id;
+      const level = h.tagName === "H2" ? 2 : 3;
+      const label = h.textContent.trim();
+
+      tocItems.push({ id, label, level });
+    });
+
+    // de-duplicate by id (keep first)
+    const seen = new Set();
+    const unique = tocItems.filter(x => (seen.has(x.id) ? false : (seen.add(x.id), true)));
+
+    if (tocNav){
+      tocNav.innerHTML = unique.map(x => {
+        const cls = x.level === 3 ? "depth-3" : "";
+        return `<a class="${cls}" href="#${x.id}" data-id="${x.id}">${x.label}</a>`;
+      }).join("");
+    }
+
+    // Active TOC link
+    const tocLinks = Array.from(document.querySelectorAll("#tocNav a"));
+
+    function setTocActive(id){
+      tocLinks.forEach(a => a.classList.toggle("active", a.getAttribute("data-id") === id));
+    }
+
+    // Observe sections for active states
+    const sectionIds = ["overview","how-we-built","team","screenshots","proof","links"];
+    const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(x => x.isIntersecting)
+        .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (visible && visible.target && visible.target.id){
+        setLeftActive(visible.target.id);
+        setTocActive(visible.target.id);
+      }
+    }, { threshold: [0.15, 0.25, 0.4, 0.6] });
+
+    sections.forEach(sec => observer.observe(sec));
+
+    // Generate line numbers for code screenshot viewers
+    document.querySelectorAll(".code-shot").forEach(block => {
+      const lines = parseInt(block.getAttribute("data-lines") || "1", 10);
+      const gutter = block.querySelector(".gutter");
+      if (!gutter) return;
+      gutter.innerHTML = "";
+      for (let i=1; i<=lines; i++){
+        const div = document.createElement("div");
+        div.textContent = i;
+        gutter.appendChild(div);
+      }
+    });
+  </script>
+</body>
+</html>
